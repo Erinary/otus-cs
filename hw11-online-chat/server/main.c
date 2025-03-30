@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <poll.h>
 
-#define recv_buff_len 65
+#define msg_buff_len 65
 
 //
 // Created by Liubov Udalova on 25.03.25.
@@ -49,6 +49,7 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in client_addr;
     while (1) {
         socklen_t addr_size = sizeof client_addr;
+        fprintf(stderr, "Waiting for a client connection\n");
         int connection_fd = accept(socket_fd, (struct sockaddr *) &client_addr, &addr_size);
         if (connection_fd < 0) {
             fprintf(stderr, "Failed to accept connection: %s\n", strerror(errno));
@@ -57,8 +58,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Connection established from: %s:%d\n", inet_ntoa(client_addr.sin_addr),
                 ntohs(client_addr.sin_port));
 
-        char client_msg[recv_buff_len];
-        char server_msg[recv_buff_len];
+        char client_msg[msg_buff_len];
+        char server_msg[msg_buff_len];
 
         struct pollfd poll_fds[2] = {
             {
@@ -86,7 +87,7 @@ int main(int argc, char *argv[]) {
             }
             if (poll_fds[0].revents & POLLIN) {
                 //Received data in socket
-                ssize_t recv_size = recv(connection_fd, client_msg, recv_buff_len - 1, 0);
+                ssize_t recv_size = recv(connection_fd, client_msg, msg_buff_len - 1, 0);
                 if (recv_size < 0) {
                     fprintf(stderr, "Failed to receive message: %s\n", strerror(errno));
                     close(connection_fd);
@@ -95,8 +96,8 @@ int main(int argc, char *argv[]) {
                 fprintf(stdout, "\nClient: %s\n", client_msg);
                 memset(client_msg, 0, sizeof client_msg);
             } else if (poll_fds[1].revents & POLLIN) {
-                //Received data in socket
-                char *input_res = fgets(server_msg, recv_buff_len, stdin);
+                //Received data from stdin
+                char *input_res = fgets(server_msg, msg_buff_len, stdin);
                 if (input_res == NULL) {
                     fprintf(stderr, "Failed to read from stdin: %s\n", strerror(errno));
                     break;
@@ -106,6 +107,7 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Failed to send message: %s\n", strerror(errno));
                     break;
                 }
+                memset(server_msg, 0, sizeof server_msg);
             }
         }
         close(connection_fd);
