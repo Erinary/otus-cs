@@ -37,4 +37,6 @@ enum CodecState read_socket(struct CodecData *codec_data);
 
 ssize_t write_socket(struct CodecData *codec_data, u_int8_t msg_type, char *msg_data, u_int16_t msg_length);
 
+void reset_codec(struct CodecData *codec_data);
+
 #endif //MSG_CODEC_H

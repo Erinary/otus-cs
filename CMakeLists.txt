@@ -17,4 +17,6 @@ add_executable(otus_cs_hw12-server
         hw12-course-work/server/main.c
         hw12-course-work/libs/msg_codec.c
         hw12-course-work/libs/msg_codec.h
-        hw12-course-work/libs/msg_types.h)
+        hw12-course-work/libs/msg_types.h
+        hw12-course-work/server/server.c
+        hw12-course-work/server/server.h)

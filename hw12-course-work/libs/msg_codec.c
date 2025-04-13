@@ -37,6 +37,7 @@ enum CodecState read_socket(struct CodecData *codec_data) {
                 current_state = MSG_HEADER_RX_RUNNING;
                 break;
             }
+            codec_data->rx_header_len = HEADER_LENGTH;
             current_state = MSG_HEADER_RX_DONE;
             break;
         }
@@ -55,6 +56,7 @@ enum CodecState read_socket(struct CodecData *codec_data) {
                 current_state = MSG_DATA_RX_RUNNING;
                 break;
             }
+            codec_data->rx_data_len = header.msg_data_length;
             current_state = MSG_DATA_RX_DONE;
             break;
         }
@@ -84,4 +86,10 @@ ssize_t write_socket(struct CodecData *codec_data, u_int8_t msg_type, char *msg_
         return -1;
     }
     return sent_size;
+}
+
+void reset_codec(struct CodecData *codec_data) {
+    memset(codec_data, 0, sizeof(*codec_data));
+    codec_data->socket_fd = -1;
+    codec_data->state = INIT;
 }
