@@ -23,9 +23,16 @@ struct Server {
 
 void server_run(struct Server *server, int server_fd);
 
-int server_refresh_poll_fds(const struct Server *server);
+void server_stop(struct Server *server);
+
+int server_refresh_poll_fds(struct Server *server);
 
 void server_accept_connection(struct Server *server);
-//TODO method to handle client connection during poll
+
+void handle_client_message(struct Server *server, struct ClientContainer *client_container);
+
+struct ClientContainer *find_client_container(struct Server *server, int client_fd);
+
+void reset_client_container(struct ClientContainer *client_container);
 
 #endif //SERVER_H
