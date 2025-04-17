@@ -16,6 +16,7 @@ enum CodecState {
     MSG_HEADER_RX_DONE,
     MSG_DATA_RX_RUNNING,
     MSG_DATA_RX_DONE,
+    CLOSED_BY_COUNTERPARTY,
     ERROR,
 };
 

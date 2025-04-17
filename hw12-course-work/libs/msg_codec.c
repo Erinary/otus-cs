@@ -7,10 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/errno.h>
 #include <sys/socket.h>
 
-//TODO description
 enum CodecState read_socket(struct CodecData *codec_data) {
     enum CodecState current_state = codec_data->state;
     switch (current_state) {
@@ -20,7 +20,6 @@ enum CodecState read_socket(struct CodecData *codec_data) {
             memset(codec_data->rx_header_buf, 0, HEADER_LENGTH);
             codec_data->rx_data_len = 0;
             memset(codec_data->rx_data_buf, 0, MAX_MSG_DATA_LENGTH);
-            //TODO handle errors
             //Note: intentionally no break, continue reading header
         }
         case MSG_HEADER_RX_RUNNING: {
@@ -30,6 +29,11 @@ enum CodecState read_socket(struct CodecData *codec_data) {
             if (recv_header_size < 0) {
                 fprintf(stderr, "Failed to receive message header: %s\n", strerror(errno));
                 current_state = ERROR;
+                break;
+            }
+            if (recv_header_size == 0) {
+                close(codec_data->socket_fd);
+                current_state = CLOSED_BY_COUNTERPARTY;
                 break;
             }
             if (recv_header_size < HEADER_LENGTH - codec_data->rx_header_len) {
@@ -51,6 +55,11 @@ enum CodecState read_socket(struct CodecData *codec_data) {
                 current_state = ERROR;
                 break;
             }
+            if (recv_data_size == 0) {
+                close(codec_data->socket_fd);
+                current_state = CLOSED_BY_COUNTERPARTY;
+                break;
+            }
             if (recv_data_size < header.msg_data_length - codec_data->rx_data_len) {
                 codec_data->rx_data_len += recv_data_size;
                 current_state = MSG_DATA_RX_RUNNING;
@@ -69,7 +78,6 @@ enum CodecState read_socket(struct CodecData *codec_data) {
     return current_state;
 }
 
-//TODO description
 ssize_t write_socket(struct CodecData *codec_data, u_int8_t msg_type, char *msg_data, u_int16_t msg_length) {
     struct MsgHeader header = {
         .msg_data_length = msg_length,

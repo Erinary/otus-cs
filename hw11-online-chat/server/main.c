@@ -40,10 +40,12 @@ int main(int argc, char *argv[]) {
     int bind_result = bind(socket_fd, res->ai_addr, res->ai_addrlen);
     if (bind_result < 0) {
         fprintf(stderr, "Failed to bind to socket: %s\n", strerror(errno));
+        return -1;
     }
     int listen_result = listen(socket_fd, 2);
     if (listen_result < 0) {
         fprintf(stderr, "Failed to listen on socket: %s\n", strerror(errno));
+        return -1;
     }
 
     struct sockaddr_in client_addr;

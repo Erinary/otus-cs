@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Connection closed\n");
             break;
         }
-        if (poll_fds[1].revents & POLLERR) {
+        if (poll_fds[0].revents & POLLERR) {
             fprintf(stderr, "Connection error\n");
             break;
         }

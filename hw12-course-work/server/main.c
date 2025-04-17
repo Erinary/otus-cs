@@ -38,7 +38,6 @@ int main(int argc, char *argv[]) {
 
     struct addrinfo hints;
     memset(&hints, 0, sizeof hints);
-    //TODO handle error
 
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -55,10 +54,12 @@ int main(int argc, char *argv[]) {
     int bind_result = bind(server_fd, res->ai_addr, res->ai_addrlen);
     if (bind_result < 0) {
         fprintf(stderr, "Failed to bind to socket: %s\n", strerror(errno));
+        return -1;
     }
     int listen_result = listen(server_fd, 2);
     if (listen_result < 0) {
         fprintf(stderr, "Failed to listen on socket: %s\n", strerror(errno));
+        return -1;
     }
     server_run(&server, server_fd);
     return 0;

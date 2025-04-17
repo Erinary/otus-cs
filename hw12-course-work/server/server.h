@@ -7,8 +7,8 @@
 
 #include <poll.h>
 #include "../libs/msg_codec.h"
+#include "../libs/msg_types.h"
 
-#define MAX_USERNAME_LEN 20
 #define MAX_CLIENTS_NUMBER 10
 
 struct ClientContainer {
@@ -34,5 +34,11 @@ void handle_client_message(struct Server *server, struct ClientContainer *client
 struct ClientContainer *find_client_container(struct Server *server, int client_fd);
 
 void reset_client_container(struct ClientContainer *client_container);
+
+ssize_t send_msg_to_client(struct ClientContainer *client_container, char *text);
+
+ssize_t send_server_msg_to_client(struct ClientContainer *client_container, char *text);
+
+ssize_t send_err_to_client(struct ClientContainer *client_container, char *err_text);
 
 #endif //SERVER_H

@@ -7,7 +7,9 @@
 
 #define MSG_TYPE_NONE 0
 #define MSG_TYPE_LOGIN 1
-#define MSG_TYPE_CLIENT_TEXT 2
-#define MSG_TYPE_SERVER_TEXT 3
+#define MSG_TYPE_USER_TEXT 2
+#define MSG_TYPE_SYSTEM_TEXT 3
+
+#define MAX_USERNAME_LEN 20
 
 #endif //MSG_TYPES_H

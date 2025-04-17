@@ -3,7 +3,6 @@
 //
 
 #include "server.h"
-#include "../libs/msg_types.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +10,6 @@
 #include <sys/errno.h>
 #include <arpa/inet.h>
 
-//TODO logs with timestamp in stderr
 void server_run(struct Server *server, int server_fd) {
     fprintf(stderr, "Starting server...\n");
     server->poll_fds[0] = (struct pollfd){
@@ -41,6 +39,7 @@ void server_run(struct Server *server, int server_fd) {
                 return;
             }
             if (client_pollfd->revents & POLLIN) {
+                fprintf(stderr, "Received data from client\n");
                 handle_client_message(server, client_container);
             } else if (client_pollfd->revents & POLLHUP) {
                 fprintf(stderr, "Connection closed\n");
@@ -96,9 +95,11 @@ void server_accept_connection(struct Server *server) {
             return;
         }
     }
-    fprintf(stderr, "Failed to accept connection: Reached maximum clients number\n");
+    struct ClientContainer client_container;
+    reset_client_container(&client_container);
+    client_container.codec_data.socket_fd = socket_fd;
+    send_err_to_client(&client_container, "Failed to accept connection: Reached maximum clients number");
     close(socket_fd);
-    //TODO send error message to client
 }
 
 void handle_client_message(struct Server *server, struct ClientContainer *client_container) {
@@ -108,26 +109,52 @@ void handle_client_message(struct Server *server, struct ClientContainer *client
         fprintf(stderr, "Failed to handle client message\n");
         close(client_fd);
         reset_client_container(client_container);
+    } else if (state == CLOSED_BY_COUNTERPARTY) {
+        //Socket is already closed during read_socket method
+        fprintf(stderr, "Client '%s' has closed connection\n", client_container->username);
+        reset_client_container(client_container);
     } else if (state == MSG_DATA_RX_DONE) {
         struct MsgHeader header = *(struct MsgHeader *) client_container->codec_data.rx_header_buf;
         struct CodecData *codec = &client_container->codec_data;
+        char msg_to_send[MAX_MSG_DATA_LENGTH + 1];
+        memset(msg_to_send, 0, sizeof msg_to_send);
         if (strlen(client_container->username) == 0) {
             if (header.msg_type == MSG_TYPE_LOGIN) {
                 if (codec->rx_data_len > MAX_USERNAME_LEN) {
-                    fprintf(stderr, "Username too long\n");
-                    //TODO send error to client
+                    send_err_to_client(client_container, "Username too long");
                     return;
                 }
                 memcpy(client_container->username, codec->rx_data_buf, codec->rx_data_len);
-                //TODO handle error
+                snprintf(msg_to_send, MAX_MSG_DATA_LENGTH + 1, "%s joined to server", client_container->username);
+                fprintf(stderr, "%s\n", msg_to_send);
+                for (int i = 0; i < MAX_CLIENTS_NUMBER; i++) {
+                    int dest_socket_fd = server->clients[i].codec_data.socket_fd;
+                    if (dest_socket_fd != -1 && dest_socket_fd != codec->socket_fd) {
+                        send_server_msg_to_client(&server->clients[i], msg_to_send);
+                    }
+                }
             } else {
-                fprintf(stderr, "User is not logged in\n");
-                //TODO send error to client
+                send_err_to_client(client_container, "User is not logged in");
             }
         } else {
-            if (header.msg_type == MSG_TYPE_CLIENT_TEXT) {
-                //TODO notify all clients
+            if (header.msg_type == MSG_TYPE_USER_TEXT) {
+                int msg_to_send_length = snprintf(msg_to_send, MAX_MSG_DATA_LENGTH + 1, "%s: %s",
+                                                  client_container->username, codec->rx_data_buf);
+                if (msg_to_send_length < 0) {
+                    send_err_to_client(client_container, "Failed to prepare message for clients");
+                    return;
+                }
+                if (msg_to_send_length >= MAX_MSG_DATA_LENGTH) {
+                    send_err_to_client(client_container, "Message too long");
+                    return;
+                }
                 fprintf(stderr, "%s: %s\n", client_container->username, codec->rx_data_buf);
+                for (int i = 0; i < MAX_CLIENTS_NUMBER; i++) {
+                    if (server->clients[i].codec_data.socket_fd != -1) {
+                        send_msg_to_client(&server->clients[i], msg_to_send);
+                    }
+                }
+                fprintf(stderr, "Sending message to clients\n");
             } else {
                 fprintf(stderr, "%s: Unknown message type\n", client_container->username);
             }
@@ -147,5 +174,32 @@ struct ClientContainer *find_client_container(struct Server *server, int client_
 void reset_client_container(struct ClientContainer *client_container) {
     reset_codec(&client_container->codec_data);
     memset(client_container->username, 0, MAX_USERNAME_LEN);
-    //TODO handle errors
+}
+
+ssize_t send_msg_to_client(struct ClientContainer *client_container, char *text) {
+    ssize_t sent_size = write_socket(&client_container->codec_data, MSG_TYPE_USER_TEXT, text, strlen(text));
+    if (sent_size < 0) {
+        fprintf(stderr, "Failed to send message to client\n");
+        reset_client_container(client_container);
+    }
+    return sent_size;
+}
+
+ssize_t send_server_msg_to_client(struct ClientContainer *client_container, char *text) {
+    ssize_t sent_size = write_socket(&client_container->codec_data, MSG_TYPE_SYSTEM_TEXT, text, strlen(text));
+    if (sent_size < 0) {
+        fprintf(stderr, "Failed to send message to client\n");
+        reset_client_container(client_container);
+    }
+    return sent_size;
+}
+
+ssize_t send_err_to_client(struct ClientContainer *client_container, char *err_text) {
+    fprintf(stderr, "%s: %s\n", client_container->username, err_text);
+    ssize_t sent_size = write_socket(&client_container->codec_data, MSG_TYPE_SYSTEM_TEXT, err_text, strlen(err_text));
+    if (sent_size < 0) {
+        fprintf(stderr, "Failed to send message to client\n");
+        reset_client_container(client_container);
+    }
+    return sent_size;
 }
