@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
     // Default sample strings
     static const char *default_samples[] = {
         "1 + 2",
-        "3 * (4 - 5)",
-        "6 / 3 + 1"
     };
 
     // Parse CLI flags
@@ -68,7 +66,7 @@ int main(int argc, char **argv) {
             if (result.success) {
                 fprintf(stderr, "Result: %f\n", result.result);
             } else {
-                fprintf(stderr, "Runtime error: %f\n", result.result);
+                fprintf(stderr, "Error evaluating command");
             }
         }
     } else {
@@ -85,7 +83,7 @@ int main(int argc, char **argv) {
             if (result.success) {
                 fprintf(stderr, "Result: %f\n", result.result);
             } else {
-                fprintf(stderr, "Runtime error: %f\n", result.result);
+                fprintf(stderr, "Error evaluating command");
             }
         }
     }

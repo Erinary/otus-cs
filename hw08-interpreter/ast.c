@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include "ast.h"
 
+AST *singleton_ast;
+
 AST *create_node(const NodeType type, const int child_count, const AST *children[]) {
     AST *node = malloc(sizeof(AST));
     if (!node) {
@@ -23,18 +25,16 @@ AST *create_node(const NodeType type, const int child_count, const AST *children
             perror("malloc failed");
             exit(EXIT_FAILURE);
         }
-
         for (int i = 0; i < child_count; ++i) {
-            node->children[i] = (AST *) children[i]; // cast away const if needed
+            node->children[i] = (AST *) children[i];
         }
     }
-
     return node;
 }
 
 AST *create_node_binary(const NodeType type, const AST *left, const AST *right) {
     return create_node(type, 2, (const AST *[]){left, right});
-};
+}
 
 AST *create_number(const float value) {
     AST *node = malloc(sizeof(AST));
@@ -55,7 +55,7 @@ void free_ast(AST *node) {
     // TODO FIX: Implement
 }
 
-double execute_ast(AST *node) {
+double execute_ast(const AST *node) {
     switch (node->type) {
         case AST_NODE_NUMBER:
             return node->value_number;
@@ -70,10 +70,12 @@ double execute_ast(AST *node) {
 };
 
 void print_ast(AST *node, int indent) {
-    if (!node) return;
-
-    for (int i = 0; i < indent; ++i) printf("  ");
-
+    if (!node) {
+        return;
+    }
+    for (int i = 0; i < indent; ++i) {
+        fprintf(stderr, "  ");
+    }
     switch (node->type) {
         case AST_NODE_NUMBER:
             fprintf(stderr, "Number(%g)\n", node->value_number);
@@ -93,7 +95,6 @@ void print_ast(AST *node, int indent) {
         default:
             fprintf(stderr,"Unknown node type: %d\n", node->type);
     }
-
     for (int i = 0; i < node->child_count; ++i) {
         print_ast(node->children[i], indent + 1);
     }

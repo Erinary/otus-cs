@@ -20,7 +20,8 @@ typedef struct AST {
     struct AST **children;  // Array of child pointers
 } AST;
 
-AST *singleton_ast;
+// Define here, but init in .c
+extern AST *singleton_ast;
 
 // Constructors
 AST *create_number(float value);
@@ -34,6 +35,6 @@ void print_ast(AST *node, int indent);
 
 void free_ast(AST *node);
 
-double execute_ast(AST *node);
+double execute_ast(const AST *node);
 
 #endif //AST_H
