@@ -63,6 +63,10 @@ double execute_ast(const AST *node) {
             return execute_ast(node->children[0]) + execute_ast(node->children[1]);
         case AST_NODE_SUB:
             return execute_ast(node->children[0]) - execute_ast(node->children[1]);
+        case AST_NODE_MUL:
+            return execute_ast(node->children[0]) * execute_ast(node->children[1]);
+        case AST_NODE_DIV:
+            return execute_ast(node->children[0]) / execute_ast(node->children[1]);
         default:
             fprintf(stderr, "Unknown node type %d\n", node->type);
             exit(EXIT_FAILURE);

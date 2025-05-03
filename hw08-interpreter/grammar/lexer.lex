@@ -8,6 +8,8 @@
 [0-9]+      { yylval.value_number = atoi(yytext); return NUMBER; }
 "+"         { return PLUS; }
 "-"         { return MINUS; }
+"*"         { return MUL; }
+"/"         { return DIV; }
 [ \t\n]     { /* skip whitespace */ }
 .           { return yytext[0]; }
 
