@@ -16,7 +16,10 @@ add_executable(otus_cs_hw08 hw08-interpreter/main.c
         hw08-interpreter/generated/parser.h
         hw08-interpreter/generated/parser.c
         hw08-interpreter/ast.h
-        hw08-interpreter/ast.c)
+        hw08-interpreter/ast.c
+        hw08-interpreter/symbol_table.h
+        hw08-interpreter/symbol_table.c
+)
 add_executable(otus_cs_hw11-client hw11-online-chat/client/main.c)
 add_executable(otus_cs_hw11-server hw11-online-chat/server/main.c)
 add_executable(otus_cs_hw12-client

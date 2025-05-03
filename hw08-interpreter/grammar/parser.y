@@ -12,27 +12,36 @@ int yyerror(const char *s) {
 
 %union {
     float value_number;
-    AST* node;
+    char *value_str;
+    AST *node;
 }
 
 %token <value_number> NUMBER
-%token <node> ID
-%token PLUS MINUS MUL DIV PARENTHESIS_LEFT PARENTHESIS_RIGHT // + - * / ( )
+%token <value_str> IDENT
+%token PLUS MINUS MUL DIV PARENTHESIS_LEFT PARENTHESIS_RIGHT ASSIGN // + - * / ( ) =
 %type <node> expr
+%type <node> stmt
 
 %start input
 
+%right ASSIGN
 %left PLUS MINUS
 %left MUL DIV
 
 %%
 
 input:
-    expr { singleton_ast = $1; }
+    stmt { singleton_ast = $1; }
+    ;
+
+stmt:
+      IDENT ASSIGN expr { $$ = create_assignment(create_ident($1), $3); }
+    | expr { $$ = $1; }
     ;
 
 expr:
       NUMBER           { $$ = create_number($1); }
+    | IDENT            { $$ = create_ident($1); }
     | expr PLUS expr   { $$ = create_node_binary(AST_NODE_ADD, $1, $3); }
     | expr MINUS expr  { $$ = create_node_binary(AST_NODE_SUB, $1, $3); }
     | expr MUL expr  { $$ = create_node_binary(AST_NODE_MUL, $1, $3); }

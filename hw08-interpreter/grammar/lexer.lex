@@ -5,6 +5,7 @@
 
 %%
 
+[a-zA-Z_][a-zA-Z0-9_]* { yylval.value_str = strdup(yytext); return IDENT; }
 [0-9]+      { yylval.value_number = atoi(yytext); return NUMBER; }
 "+"         { return PLUS; }
 "-"         { return MINUS; }
@@ -12,6 +13,7 @@
 "/"         { return DIV; }
 "("         { return PARENTHESIS_LEFT; }
 ")"         { return PARENTHESIS_RIGHT; }
+"="         { return ASSIGN; }
 [ \t\n]     { /* skip whitespace */ }
 .           { return yytext[0]; }
 

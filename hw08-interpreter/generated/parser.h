@@ -55,13 +55,14 @@ extern int yydebug;
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
     NUMBER = 258,                  /* NUMBER  */
-    ID = 259,                      /* ID  */
+    IDENT = 259,                   /* IDENT  */
     PLUS = 260,                    /* PLUS  */
     MINUS = 261,                   /* MINUS  */
     MUL = 262,                     /* MUL  */
     DIV = 263,                     /* DIV  */
     PARENTHESIS_LEFT = 264,        /* PARENTHESIS_LEFT  */
-    PARENTHESIS_RIGHT = 265        /* PARENTHESIS_RIGHT  */
+    PARENTHESIS_RIGHT = 265,       /* PARENTHESIS_RIGHT  */
+    ASSIGN = 266                   /* ASSIGN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -73,9 +74,10 @@ union YYSTYPE
 #line 13 "grammar/parser.y"
 
     float value_number;
-    AST* node;
+    char *value_str;
+    AST *node;
 
-#line 79 "/output/parser.h"
+#line 81 "/output/parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
