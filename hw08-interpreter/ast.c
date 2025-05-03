@@ -71,7 +71,7 @@ double execute_ast(const AST *node) {
             fprintf(stderr, "Unknown node type %d\n", node->type);
             exit(EXIT_FAILURE);
     }
-};
+}
 
 void print_ast(AST *node, int indent) {
     if (!node) {

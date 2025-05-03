@@ -59,7 +59,9 @@ extern int yydebug;
     PLUS = 260,                    /* PLUS  */
     MINUS = 261,                   /* MINUS  */
     MUL = 262,                     /* MUL  */
-    DIV = 263                      /* DIV  */
+    DIV = 263,                     /* DIV  */
+    PARENTHESIS_LEFT = 264,        /* PARENTHESIS_LEFT  */
+    PARENTHESIS_RIGHT = 265        /* PARENTHESIS_RIGHT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -73,7 +75,7 @@ union YYSTYPE
     float value_number;
     AST* node;
 
-#line 77 "/output/parser.h"
+#line 79 "/output/parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

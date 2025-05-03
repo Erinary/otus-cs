@@ -17,7 +17,7 @@ int yyerror(const char *s) {
 
 %token <value_number> NUMBER
 %token <node> ID
-%token PLUS MINUS MUL DIV
+%token PLUS MINUS MUL DIV PARENTHESIS_LEFT PARENTHESIS_RIGHT // + - * / ( )
 %type <node> expr
 
 %start input
@@ -37,6 +37,7 @@ expr:
     | expr MINUS expr  { $$ = create_node_binary(AST_NODE_SUB, $1, $3); }
     | expr MUL expr  { $$ = create_node_binary(AST_NODE_MUL, $1, $3); }
     | expr DIV expr  { $$ = create_node_binary(AST_NODE_DIV, $1, $3); }
+    | PARENTHESIS_LEFT expr PARENTHESIS_RIGHT { $$ = $2; }
     ;
 
 %%

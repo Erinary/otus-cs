@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
     // Default sample strings
     static const char *default_samples[] = {
-        "1 + 2 * 3 - 4 / 2",
+        "(1 + 2) * 3 - 4 / 2",
     };
 
     // Parse CLI flags

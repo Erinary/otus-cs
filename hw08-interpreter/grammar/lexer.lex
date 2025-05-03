@@ -10,6 +10,8 @@
 "-"         { return MINUS; }
 "*"         { return MUL; }
 "/"         { return DIV; }
+"("         { return PARENTHESIS_LEFT; }
+")"         { return PARENTHESIS_RIGHT; }
 [ \t\n]     { /* skip whitespace */ }
 .           { return yytext[0]; }
 
