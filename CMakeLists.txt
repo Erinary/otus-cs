@@ -10,6 +10,13 @@ add_executable(otus_cs_hw07 hw07-lexer/main.c
         hw07-lexer/list.h
         hw07-lexer/scanner.c
         hw07-lexer/scanner.h)
+add_executable(otus_cs_hw08 hw08-interpreter/main.c
+        hw08-interpreter/generated/lexer.h
+        hw08-interpreter/generated/lexer.c
+        hw08-interpreter/generated/parser.h
+        hw08-interpreter/generated/parser.c
+        hw08-interpreter/ast.h
+        hw08-interpreter/ast.c)
 add_executable(otus_cs_hw11-client hw11-online-chat/client/main.c)
 add_executable(otus_cs_hw11-server hw11-online-chat/server/main.c)
 add_executable(otus_cs_hw12-client

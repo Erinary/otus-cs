@@ -1,0 +1,100 @@
+//
+// Created by Liubov Udalova on 02.05.25.
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include "ast.h"
+
+AST *create_node(const NodeType type, const int child_count, const AST *children[]) {
+    AST *node = malloc(sizeof(AST));
+    if (!node) {
+        perror("malloc failed");
+        exit(EXIT_FAILURE);
+    }
+
+    node->type = type;
+    node->value_number = 0;
+    node->child_count = child_count;
+    node->children = NULL;
+
+    if (child_count > 0) {
+        node->children = malloc(sizeof(AST *) * child_count);
+        if (!node->children) {
+            perror("malloc failed");
+            exit(EXIT_FAILURE);
+        }
+
+        for (int i = 0; i < child_count; ++i) {
+            node->children[i] = (AST *) children[i]; // cast away const if needed
+        }
+    }
+
+    return node;
+}
+
+AST *create_node_binary(const NodeType type, const AST *left, const AST *right) {
+    return create_node(type, 2, (const AST *[]){left, right});
+};
+
+AST *create_number(const float value) {
+    AST *node = malloc(sizeof(AST));
+    if (!node) {
+        perror("malloc failed");
+        exit(EXIT_FAILURE);
+    }
+
+    node->type = AST_NODE_NUMBER;
+    node->value_number = value;
+    node->child_count = 0;
+    node->children = NULL;
+
+    return node;
+}
+
+void free_ast(AST *node) {
+    // TODO FIX: Implement
+}
+
+double execute_ast(AST *node) {
+    switch (node->type) {
+        case AST_NODE_NUMBER:
+            return node->value_number;
+        case AST_NODE_ADD:
+            return execute_ast(node->children[0]) + execute_ast(node->children[1]);
+        case AST_NODE_SUB:
+            return execute_ast(node->children[0]) - execute_ast(node->children[1]);
+        default:
+            fprintf(stderr, "Unknown node type %d\n", node->type);
+            exit(EXIT_FAILURE);
+    }
+};
+
+void print_ast(AST *node, int indent) {
+    if (!node) return;
+
+    for (int i = 0; i < indent; ++i) printf("  ");
+
+    switch (node->type) {
+        case AST_NODE_NUMBER:
+            fprintf(stderr, "Number(%g)\n", node->value_number);
+        break;
+        case AST_NODE_ADD:
+            fprintf(stderr, "Add\n");
+        break;
+        case AST_NODE_SUB:
+            fprintf(stderr,"Sub\n");
+        break;
+        case AST_NODE_MUL:
+            fprintf(stderr,"Mul\n");
+        break;
+        case AST_NODE_DIV:
+            fprintf(stderr,"Div\n");
+        break;
+        default:
+            fprintf(stderr,"Unknown node type: %d\n", node->type);
+    }
+
+    for (int i = 0; i < node->child_count; ++i) {
+        print_ast(node->children[i], indent + 1);
+    }
+}
